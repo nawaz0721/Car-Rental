@@ -19,7 +19,8 @@ import DashboardLayout from './customerdashboard/DashboardLayout'; // New Dashbo
 import MyBookings from './customerdashboard/MyBookings';
 import Profile from './customerdashboard/Profile';
 import Login from './pages/Login';
-import Register from './pages/register';
+import Register from './pages/Register';
+
 
 const App = () => {
   const [theme, setTheme] = useState(localStorage.getItem('theme') ? localStorage.getItem('theme') : 'light');
