@@ -6,7 +6,7 @@ import ResponsiveMenu from "./ResponsiveMenu";
 
 // Mock user authentication state
 // This should be integrated with your actual authentication logic
-const isAuthenticated = true; // Change this based on actual user authentication status
+const isAuthenticated = false; // Change this based on actual user authentication status
 
 export const Navlinks = [
   {
@@ -48,8 +48,8 @@ const ProfileDropdown = ({ isAuthenticated }) => {
             </>
           ) : (
             <>
-              <li><a href="/auth#login" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Login</a></li>
-              <li><a href="/auth#register" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Register</a></li>
+              <li><a href="/login" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Login</a></li>
+              <li><a href="/register" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Register</a></li>
             </>
           )}
         </ul>

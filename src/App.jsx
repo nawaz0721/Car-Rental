@@ -12,13 +12,14 @@ import AppStoreBanner from './components/AppStoreBanner/AppStoreBanner';
 import Contact from './components/Contact/Contact';
 import Testimonial from './components/Testimonial/Testimonial';
 import Footer from './components/Footer/Footer';
-import AuthForms from './pages/Auth';
 import Home from './pages/Home';
 import CarPage from './pages/CarPage';
 import CarDetails from './pages/CarDetails';
 import DashboardLayout from './customerdashboard/DashboardLayout'; // New Dashboard layout
 import MyBookings from './customerdashboard/MyBookings';
 import Profile from './customerdashboard/Profile';
+import Login from './pages/Login';
+import Register from './pages/register';
 
 const App = () => {
   const [theme, setTheme] = useState(localStorage.getItem('theme') ? localStorage.getItem('theme') : 'light');
@@ -48,11 +49,12 @@ const App = () => {
     <Router>
       <div className="bg-white dark:bg-black dark:text-white text-black overflow-x-hidden">
         {/* Conditional Navbar */}
-        {['/auth', '/dashboard', '/dashboard/my-bookings', '/dashboard/profile'].indexOf(window.location.pathname) === -1 && <Navbar theme={theme} setTheme={setTheme} />}
+        {['/login', '/register', '/dashboard', '/dashboard/my-bookings', '/dashboard/profile'].indexOf(window.location.pathname) === -1 && <Navbar theme={theme} setTheme={setTheme} />}
 
         <Routes>
           <Route path="/" element={<Home theme={theme} />} />
-          <Route path="/auth" element={<AuthForms />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
           {/* Nested routes for Dashboard */}
           <Route path="/dashboard/*" element={<DashboardLayout />}>
@@ -72,7 +74,7 @@ const App = () => {
         </Routes>
 
         {/* Conditional Footer */}
-        {['/auth', '/dashboard', '/dashboard/my-bookings', '/dashboard/profile'].indexOf(window.location.pathname) === -1 && <Footer />}
+        {['/login', '/register', '/dashboard', '/dashboard/my-bookings', '/dashboard/profile'].indexOf(window.location.pathname) === -1 && <Footer />}
       </div>
     </Router>
   );
