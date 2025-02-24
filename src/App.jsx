@@ -58,7 +58,6 @@ const App = () => {
 
           {/* Nested routes for Dashboard */}
           <Route path="/dashboard/*" element={<DashboardLayout />}>
-            {/* <Route index element={<Dashboard />} /> */}
             <Route path="my-bookings" element={<MyBookings />} />
             <Route path="profile" element={<Profile />} />
           </Route>
