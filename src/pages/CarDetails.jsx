@@ -2,41 +2,30 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaStar, FaTimes } from "react-icons/fa";
 import { MdDirectionsCar } from "react-icons/md";
-import { useNavigate, useParams } from "react-router-dom"; // Import useParams
-
-import car1 from "../assets/car1.png"; // Example car image
-import car2 from "../assets/car2.png";
-import car3 from "../assets/car6.png";
-import car4 from "../assets/car2.png";
-import car5 from "../assets/car1.png";
-import car6 from "../assets/car6.png";
-import car7 from "../assets/car1.png";
-import car8 from "../assets/car6.png";
-import car9 from "../assets/car2.png";
-import car10 from "../assets/car5.png";
-
-const carList = [
-  { name: "BMW UX", price: 100, category: "SUV", image: car1 },
-  { name: "KIA UX", price: 140, category: "Sedan", image: car2 },
-  { name: "Audi Q5", price: 180, category: "SUV", image: car3 },
-  { name: "Mercedes E-Class", price: 200, category: "Luxury", image: car4 },
-  { name: "BMW 3 Series", price: 120, category: "Sedan", image: car5 },
-  { name: "Honda CR-V", price: 90, category: "SUV", image: car6 },
-  { name: "Toyota Corolla", price: 80, category: "Sedan", image: car7 },
-  { name: "Tesla Model X", price: 250, category: "Luxury", image: car8 },
-  { name: "Ford Mustang", price: 150, category: "Coupe", image: car9 },
-  { name: "Chevrolet Camaro", price: 140, category: "Coupe", image: car10 },
-];
+import { useParams } from "react-router-dom";
+import axios from "axios"; // Import axios
+import { AppRoutes } from "../constant/constant";
 
 const CarDetails = () => {
   const { title } = useParams(); // Use useParams to capture the 'title' from the URL
   const [car, setCar] = useState(null);
+  const [loading, setLoading] = useState(true); // State to handle loading
 
+  // Fetch car details from backend
   useEffect(() => {
-    if (title) {
-      const foundCar = carList.find((car) => car.name === title);
-      setCar(foundCar || null);
-    }
+    const fetchCarDetails = async () => {
+      try {
+        const response = await axios.get(`${AppRoutes.manageCar}/${title}`);
+        console.log(response);
+        setCar(response.data);
+      } catch (error) {
+        console.error("Error fetching car details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCarDetails();
   }, [title]);
 
   const [showModal, setShowModal] = useState(false);
@@ -86,8 +75,12 @@ const CarDetails = () => {
     setShowModal(false);
   };
 
-  if (!car) {
+  if (loading) {
     return <div className="container mx-auto px-4 py-8">Loading...</div>;
+  }
+
+  if (!car) {
+    return <div className="container mx-auto px-4 py-8">Car not found.</div>;
   }
 
   return (

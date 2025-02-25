@@ -1,36 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { FaFilter } from "react-icons/fa";
-import { Link } from "react-router-dom";  // Import Link for routing
-import car1 from "../assets/car1.png";
-import car2 from "../assets/car2.png";
-import car3 from "../assets/car6.png";
-import car4 from "../assets/car2.png";
-import car5 from "../assets/car1.png";
-import car6 from "../assets/car6.png";
-import car7 from "../assets/car1.png";
-import car8 from "../assets/car6.png";
-import car9 from "../assets/car2.png";
-import car10 from "../assets/car5.png";
-
-const carList = [
-  { name: "BMW UX", price: 100, category: "SUV", image: car1 },
-  { name: "KIA UX", price: 140, category: "Sedan", image: car2 },
-  { name: "Audi Q5", price: 180, category: "SUV", image: car3 },
-  { name: "Mercedes E-Class", price: 200, category: "Luxury", image: car4 },
-  { name: "BMW 3 Series", price: 120, category: "Sedan", image: car5 },
-  { name: "Honda CR-V", price: 90, category: "SUV", image: car6 },
-  { name: "Toyota Corolla", price: 80, category: "Sedan", image: car7 },
-  { name: "Tesla Model X", price: 250, category: "Luxury", image: car8 },
-  { name: "Ford Mustang", price: 150, category: "Coupe", image: car9 },
-  { name: "Chevrolet Camaro", price: 140, category: "Coupe", image: car10 },
-];
+import { Link } from "react-router-dom";
+import { AppRoutes } from "../constant/constant";
 
 const CarPage = () => {
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [cars, setCars] = useState([]); // State to store fetched cars
+  const [loading, setLoading] = useState(true); // State to handle loading
 
+  // Fetch cars from backend
+  useEffect(() => {
+    const fetchCars = async () => {
+      try {
+        const response = await axios.get(AppRoutes.manageCar); // Replace with your backend URL
+        setCars(response.data);
+      } catch (error) {
+        console.error("Error fetching cars:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCars();
+  }, []);
+
+  // Filter cars based on category
   const filteredCars = categoryFilter
-    ? carList.filter((car) => car.category === categoryFilter)
-    : carList;
+    ? cars.filter((car) => car.category === categoryFilter)
+    : cars;
+
+  if (loading) {
+    return <div>Loading...</div>; // Show loading state
+  }
 
   return (
     <div className="pb-24 m-10">
@@ -66,30 +68,30 @@ const CarPage = () => {
         </div>
         {/* Car listing */}
         <div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-16">
-            {filteredCars.map((data, index) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-16 ">
+            {filteredCars.map((car, index) => (
               <div
                 key={index}
                 className="space-y-3 border-2 border-gray-300 hover:border-primary p-3 rounded-xl relative group"
               >
-                <div className="w-full h-[120px]">
+                <div className="w-full h-[120px] ">
                   <img
-                    src={data.image}
-                    alt={data.name}
-                    className="w-full h-[120px] object-contain sm:translate-x-8 group-hover:sm:translate-x-16 duration-700"
+                    src={car.image} // Use the image URL from MongoDB
+                    alt={car.name}
+                    className="w-full h-[120px] object-cover group-hover:sm:translate-x-5 duration-700"
                   />
                 </div>
                 <div className="space-y-2">
-                  <h1 className="text-primary font-semibold">{data.name}</h1>
+                  <h1 className="text-primary font-semibold">{car.name}</h1>
                   <div className="flex justify-between items-center text-xl font-semibold">
-                    <p>${data.price}/Day</p>
+                    <p>${car.price}/Day</p>
                     {/* Link to car details page */}
-                    <Link to={`/cars/${data.name}`} className="text-primary">Details</Link>
+                    <Link to={`/cars/${car._id}`} className="text-primary">Details</Link>
                   </div>
                 </div>
-                <p className="text-xl font-semibold absolute top-0 left-3">
+                {/* <p className="text-xl font-semibold absolute top-0 left-3">
                   12Km
-                </p>
+                </p> */}
               </div>
             ))}
           </div>

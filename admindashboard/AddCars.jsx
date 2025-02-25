@@ -54,7 +54,7 @@ const AddCar = () => {
     return false;
   };
   console.log(selectedFile);
-  
+
 
   const handleSaveCar = async () => {
     if (!carName || !price || !category || !description || (!carId && !selectedFile)) {
@@ -170,7 +170,7 @@ const AddCar = () => {
           <Option value="Truck">Truck</Option>
         </Select>
         <Input.TextArea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} className="mb-3" />
-        
+
         {previewImage && (
           <div className="mb-3">
             <p>Current Image:</p>
