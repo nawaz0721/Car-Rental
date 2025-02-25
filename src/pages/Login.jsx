@@ -4,26 +4,36 @@ import { motion, AnimatePresence } from "framer-motion"
 import { FaEnvelope, FaLock, FaGoogle, FaApple, FaFacebook } from "react-icons/fa"
 import FloatingInput from "../components/FloatingInput"
 import AuthLayout from "../components/AuthLayout"
-import { Link, Navigate } from "react-router-dom"
-import Cookies from "cookies"
+import { Link, useNavigate } from "react-router-dom"
+import Cookies from "js-cookie"
 import { AppRoutes } from "../constant/constant"
 import { notification } from "antd";
 import axios from "axios"
 
 
 export default function Login() {
-  const [isLoading, setIsLoading] = useState(false)
+  const [formData, setFormData] = useState({
+      email: '',
+      password: ''
+    });
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    
     setIsLoading(true)
     try {
-      const response = await axios.post(AppRoutes.login, FormData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
+      const response = await axios.post(AppRoutes.login, formData);
+      console.log(response);
+      
       if (response.data.status) {
         notification.success({
           message: "Login Successful",
@@ -32,13 +42,14 @@ export default function Login() {
 
         Cookies.set("authToken", response.data.data.token, { expires: 7 });
         Cookies.set("user", JSON.stringify(response.data.data.user), { expires: 7 });
-        Navigate("/");
-      } else {
+        navigate("/");
+      } else{
         notification.error({
           message: "Login Failed",
-          description: response.data.message || "Incorrect CNIC or password, please try again.",
-        });
+          description: error.response?.data?.message || "An error occurred while logging in.",
+          });
       }
+
     } catch (error) {
       notification.error({
         message: "Login Failed",
@@ -60,8 +71,8 @@ export default function Login() {
             exit={{ opacity: 0, y: -20 }}
             className="space-y-4"
           >
-            <FloatingInput icon={FaEnvelope} type="email" placeholder="Email address" />
-            <FloatingInput icon={FaLock} type="password" placeholder="Password" />
+            <FloatingInput icon={FaEnvelope} type="email" name="email" placeholder="Email address" value={formData.email} onChange={handleInputChange} />
+            <FloatingInput icon={FaLock} type="password" name="password" placeholder="Password" value={formData.password} onChange={handleInputChange} />
           </motion.div>
         </AnimatePresence>
 

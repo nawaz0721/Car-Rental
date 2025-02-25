@@ -4,5 +4,7 @@ export const BASE_URL = devUrl
 export const AppRoutes = {
     register: devUrl + "auth/register",
     login: devUrl + "auth/login",
+    logout: devUrl + "auth/logout",
+    manageCar: devUrl + "car/cars",
    
 }

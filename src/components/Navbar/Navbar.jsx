@@ -3,11 +3,26 @@ import { BiSolidSun, BiSolidMoon } from "react-icons/bi";
 import { HiMenuAlt3, HiMenuAlt1 } from "react-icons/hi";
 import { CgProfile } from "react-icons/cg"; // For the profile icon
 import ResponsiveMenu from "./ResponsiveMenu";
+import Cookies from "js-cookie"
+import { Link } from "react-router-dom";
 
 // Mock user authentication state
 // This should be integrated with your actual authentication logic
-const isAuthenticated = false; // Change this based on actual user authentication status
+const token = Cookies.get("authToken");
+if(token){
+  var isAuthenticated = true;
+}else{
+  var isAuthenticated = false;
+}
 
+ const user = Cookies.get("user");
+  const userData = JSON.parse(user);
+  console.log(userData.role);
+
+const handellogout= () => {
+  Cookies.remove("authToken");
+  window.location.reload();
+}
 export const Navlinks = [
   {
     id: 1,
@@ -43,8 +58,19 @@ const ProfileDropdown = ({ isAuthenticated }) => {
         <ul className="absolute right-0 mt-2 w-48 py-2 bg-white rounded-lg shadow-lg border">
           {isAuthenticated ? (
             <>
-              <li><a href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Dashboard</a></li>
-              <li><a href="/logout" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a></li>
+            {
+              userData.role === "admin" ? (
+                <li className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <Link to="/dashboard/admin">Admin Dashboard</Link>
+              </li>
+              ): (
+                <li className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <Link to="/dashboard/user">User Dashboard</Link>
+              </li>
+              )
+            }
+              {/* <li><a href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">User Dashboard</a></li> */}
+              <li><button onClick={handellogout} className="block w-full flex items-start px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button></li>
             </>
           ) : (
             <>

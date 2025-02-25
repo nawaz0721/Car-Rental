@@ -20,6 +20,8 @@ import MyBookings from './customerdashboard/MyBookings';
 import Profile from './customerdashboard/Profile';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import AdminDashboardLoyout from '../admindashboard/AdminDashboardLoyout';
+import AddCar from '../admindashboard/AddCars';
 
 
 const App = () => {
@@ -50,7 +52,7 @@ const App = () => {
     <Router>
       <div className="bg-white dark:bg-black dark:text-white text-black overflow-x-hidden">
         {/* Conditional Navbar */}
-        {['/login', '/register', '/dashboard', '/dashboard/my-bookings', '/dashboard/profile'].indexOf(window.location.pathname) === -1 && <Navbar theme={theme} setTheme={setTheme} />}
+        {['/login', '/register', '/dashboard/user', '/dashboard/admin', '/dashboard/manage-car', '/dashboard/my-bookings', '/dashboard/profile'].indexOf(window.location.pathname) === -1 && <Navbar theme={theme} setTheme={setTheme} />}
 
         <Routes>
           <Route path="/" element={<Home theme={theme} />} />
@@ -58,9 +60,14 @@ const App = () => {
           <Route path="/register" element={<Register />} />
 
           {/* Nested routes for Dashboard */}
-          <Route path="/dashboard/*" element={<DashboardLayout />}>
+          <Route path="/dashboard/user" element={<DashboardLayout />}>
             <Route path="my-bookings" element={<MyBookings />} />
             <Route path="profile" element={<Profile />} />
+          </Route>
+
+          <Route path='/dashboard/admin' element={<AdminDashboardLoyout />} >
+          <Route path="manage-car" element={<AddCar />} />
+          <Route path="profile" element={<Profile />} />
           </Route>
 
           <Route path="/cars" element={<CarPage />} />
@@ -74,7 +81,7 @@ const App = () => {
         </Routes>
 
         {/* Conditional Footer */}
-        {['/login', '/register', '/dashboard', '/dashboard/my-bookings', '/dashboard/profile'].indexOf(window.location.pathname) === -1 && <Footer />}
+        {['/login', '/register', '/dashboard/user', '/dashboard/admin', '/dashboard/manage-car','/dashboard/my-bookings', '/dashboard/profile'].indexOf(window.location.pathname) === -1 && <Footer />}
       </div>
     </Router>
   );

@@ -1,21 +1,26 @@
-"use client"
 import React, { useState } from 'react';
 import { motion } from "framer-motion";
 import { FaEnvelope, FaPhone, FaLanguage, FaEdit } from "react-icons/fa";
 import Modal from 'react-modal';
+import Cookies from "js-cookie"
 
 Modal.setAppElement('#root');  // App root element
+
 
 const Profile = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [profileData, setProfileData] = useState({
-    name: "Ahmed Nawaz Gondal",
-    email: "ahmed123@gmail.com",
-    phone: "123-456-7890",
-    nic: "42201-1234567-8",
-    location: "Pakistan",
-    role: "Customer"
+    name: "",
+    email: "",
+    phone: "",
+    nic: "",
+    location: "",
+    role: ""
   });
+
+  const user = Cookies.get("user");
+  const userData = JSON.parse(user);
+  console.log(userData);
 
   // Handle changes in form inputs
   const handleInputChange = (event) => {
@@ -61,27 +66,27 @@ const Profile = () => {
               />
             </div>
             <div className="p-8">
-              <div className="uppercase tracking-wide text-sm text-yellow-500 font-semibold">{profileData.role}</div>
+              <div className="uppercase tracking-wide text-sm text-yellow-500 font-semibold">{userData.role}</div>
               <motion.h2
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
                 className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl"
               >
-                {profileData.name}
+                {userData.name}
               </motion.h2>
-              <p className="mt-2 text-xl text-gray-500">{profileData.nic}</p>
-              <p className="mt-1 text-xl text-gray-500">{profileData.location}</p>
+              <p className="mt-2 text-xl text-gray-500">{userData.nic}</p>
+              <p className="mt-1 text-xl text-gray-500">{userData.location}</p>
             </div>
           </div>
           <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
             <dl className="sm:divide-y sm:divide-gray-200">
-              <ProfileItem icon={FaEnvelope} title="Name" value={profileData.name} />
-              <ProfileItem icon={FaEnvelope} title="Email" value={profileData.email} />
-              <ProfileItem icon={FaPhone} title="Phone" value={profileData.phone} />
-              <ProfileItem icon={FaPhone} title="NIC" value={profileData.nic} />
-              <ProfileItem icon={FaLanguage} title="Location" value={profileData.location} />
-              <ProfileItem icon={FaLanguage} title="Role" value={profileData.role} />
+              <ProfileItem icon={FaEnvelope} title="Name" value={userData.name} />
+              <ProfileItem icon={FaEnvelope} title="Email" value={userData.email} />
+              <ProfileItem icon={FaPhone} title="Phone" value={userData.phone} />
+              <ProfileItem icon={FaPhone} title="NIC" value={userData.nic} />
+              <ProfileItem icon={FaLanguage} title="Location" value={userData.location} />
+              <ProfileItem icon={FaLanguage} title="Role" value={userData.role} />
             </dl>
           </div>
           <motion.div

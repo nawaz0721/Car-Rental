@@ -55,7 +55,7 @@ export default function Register() {
         description: response.data.message || "User registered successfully!",
       });
 
-      navigate("/signin"); 
+      navigate("/login"); 
     } catch (error) {
       console.error("Error during registration:", error);
       notification.error({
