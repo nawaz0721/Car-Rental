@@ -11,13 +11,14 @@ import { Link } from "react-router-dom";
 const token = Cookies.get("authToken");
 if(token){
   var isAuthenticated = true;
+  const user = Cookies.get("user");
+ const userData = JSON.parse(user);
+  console.log(userData.role);
 }else{
   var isAuthenticated = false;
 }
 
- const user = Cookies.get("user");
- const userData = JSON.parse(user);
-  console.log(userData.role);
+ 
 
 const handellogout= () => {
   Cookies.remove("authToken");
