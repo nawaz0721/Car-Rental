@@ -3,15 +3,28 @@ import { motion } from "framer-motion";
 import { FaCalendarAlt, FaCar, FaCheckCircle, FaClock } from "react-icons/fa";
 import axios from "axios";
 import { AppRoutes } from "../constant/constant";
+import Cookies from "js-cookie"; // For handling the authToken
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const userToken = Cookies.get("authToken"); // Get auth token from cookies
+  const Userdetails = Cookies.get("user"); // Get auth token from cookies
 
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await axios.get(AppRoutes.getBookings);
+        // Send the token in the request header for authorization
+        const response = await axios.get(AppRoutes.getBookings, {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        });
+        console.log(response.data);
+        console.log(userToken);
+        console.log(Userdetails);
+        
+        
         const bookingsData = response.data;
 
         // Fetch car details for each booking
@@ -19,10 +32,11 @@ const MyBookings = () => {
           bookingsData.map(async (booking) => {
             try {
               const carResponse = await axios.get(`${AppRoutes.manageCar}/${booking.car}`);
-              return { ...booking, carName: carResponse.data.name, carImage: carResponse.data.image };
+
+              return { ...booking, carName: carResponse.data.name, carImage: carResponse.data.image, carId: carResponse.data.id };
             } catch (error) {
               console.error("Error fetching car details:", error);
-              return { ...booking, carName: "Unknown Car", carImage: "/car-placeholder.png" };
+              return { ...booking, carName: "Unknown Car", carImage: "/car-placeholder.png", carId: "Unknown"};
             }
           })
         );
@@ -36,7 +50,7 @@ const MyBookings = () => {
     };
 
     fetchBookings();
-  }, []);
+  }, [userToken]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);

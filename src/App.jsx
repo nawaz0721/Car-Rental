@@ -23,6 +23,7 @@ import Register from './pages/Register';
 import AdminDashboardLayout from './admindashboard/AdminDashboardLoyout';
 import AddCar from './admindashboard/AddCars';
 import ManageBooking from './admindashboard/ManageBooking';
+import Cookies from 'js-cookie';
 
 const Layout = ({ children }) => {
   const location = useLocation(); // ✅ Get the current route
@@ -53,6 +54,7 @@ const Layout = ({ children }) => {
 
 const App = () => {
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+  const [role, setRole] = useState(Cookies.get('user') ? JSON.parse(Cookies.get('user')).role : null);  // Get role from cookies
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
@@ -72,19 +74,21 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* ✅ User Dashboard */}
-          <Route path="/dashboard/user/*" element={<DashboardLayout />}>
-            <Route path="myBookings" element={<MyBookings />} />
-            <Route path="profile" element={<Profile />} />
-          </Route>
+        {/* Conditionally render dashboard based on user role */}
+        {role === 'user' && (
+            <Route path="/dashboard/user/*" element={<DashboardLayout />}>
+              <Route path="myBookings" element={<MyBookings />} />
+              <Route path="profile" element={<Profile />} />
+            </Route>
+          )}
 
-          {/* ✅ Admin Dashboard */}
-          <Route path="/dashboard/admin/*" element={<AdminDashboardLayout />}>
-            <Route path="manage-car" element={<AddCar />} />
-            <Route path="booking" element={<ManageBooking />} />
-            <Route path="profile" element={<Profile />} />
-          </Route>
-
+          {role === 'admin' && (
+            <Route path="/dashboard/admin/*" element={<AdminDashboardLayout />}>
+              <Route path="manage-car" element={<AddCar />} />
+              <Route path="booking" element={<ManageBooking />} />
+              <Route path="profile" element={<Profile />} />
+            </Route>
+          )}
           <Route path="/cars" element={<CarPage />} />
           <Route path="/cars/:title" element={<CarDetails />} />
           <Route path="/about" element={<About />} />

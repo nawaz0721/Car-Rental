@@ -9,16 +9,16 @@ import { Link } from "react-router-dom";
 // Mock user authentication state
 // This should be integrated with your actual authentication logic
 const token = Cookies.get("authToken");
+
+const user = Cookies.get("user");
+const userData = JSON.parse(user);
+console.log(userData.role);
+
 if(token){
   var isAuthenticated = true;
-  const user = Cookies.get("user");
- const userData = JSON.parse(user);
-  console.log(userData.role);
 }else{
   var isAuthenticated = false;
 }
-
- 
 
 const handellogout= () => {
   Cookies.remove("authToken");
