@@ -16,7 +16,6 @@ const CarDetails = () => {
     const fetchCarDetails = async () => {
       try {
         const response = await axios.get(`${AppRoutes.manageCar}/${title}`);
-        console.log(response);
         setCar(response.data);
       } catch (error) {
         console.error("Error fetching car details:", error);
@@ -48,33 +47,44 @@ const CarDetails = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (formData.nic.length !== 13 || isNaN(formData.nic)) {
       setIsValid(false);
       return;
     }
-
+  
     const pickUpDate = new Date(formData.pickUpDate);
     const dropOffDate = new Date(formData.dropOffDate);
     const rentalDays = Math.ceil((dropOffDate - pickUpDate) / (1000 * 3600 * 24));
-
-    alert(`
-      Car: ${car?.name}
-      Name: ${formData.name}
-      Mobile: ${formData.mobile}
-      NIC: ${formData.nic}
-      Location: ${formData.location}
-      Pick-up Date: ${formData.pickUpDate}
-      Drop-off Date: ${formData.dropOffDate}
-      Total Days: ${rentalDays} days
-      Total Price: $${rentalDays * car?.price}
-    `);
-
-    setShowModal(false);
+  
+    const bookingData = {
+      carTitle: car?.name,
+      name: formData.name,
+      mobile: formData.mobile,
+      nic: formData.nic,
+      location: formData.location,
+      pickUpDate: formData.pickUpDate,
+      dropOffDate: formData.dropOffDate,
+      totalDays: rentalDays,
+      totalPrice: rentalDays * car?.price,
+    };
+    console.log(bookingData);
+    
+  
+    try {
+      const response = await axios.post(AppRoutes.bookCar, bookingData);
+      console.log("Booking successful:", response.data);
+      alert("Booking confirmed!");
+      setShowModal(false);
+    } catch (error) {
+      console.error("Error booking car:", error);
+      setShowModal(false);
+      alert("Booking failed. Please try again.");
+    }
   };
-
+  
   if (loading) {
     return <div className="container mx-auto px-4 py-8">Loading...</div>;
   }

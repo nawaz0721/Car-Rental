@@ -13,7 +13,7 @@ const Sidebar = () => {
       <h1 className="text-2xl font-semibold mb-6 p-2">Customer Dashboard</h1>
       <ul className='p-2'>
         <li>
-          <Link to="/dashboard/user/my-bookings" className="flex items-center py-2  hover:bg-[#EC8208]">
+          <Link to="/dashboard/user/myBookings" className="flex items-center py-2  hover:bg-[#EC8208]">
             <FaTicketAlt className="mr-3" /> My Bookings
           </Link>
         </li>

@@ -1,10 +1,13 @@
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { FaMapMarkerAlt, FaCalendarAlt, FaCar } from "react-icons/fa";
+import axios from "axios";
+import { AppRoutes } from "@/constant/constant";
+import { toast } from "react-toastify"; // Optional for alerts
 
-
-import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import DatePicker from "react-datepicker"
-import "react-datepicker/dist/react-datepicker.css"
-import { FaMapMarkerAlt, FaCalendarAlt, FaCar } from "react-icons/fa"
+const allowedCategories = ["SUV", "Sedan", "Sport", "Van", "Truck"];
 
 const InputWrapper = ({ children, label }) => (
   <motion.div
@@ -16,38 +19,95 @@ const InputWrapper = ({ children, label }) => (
     <label className="text-sm font-medium text-gray-700">{label}</label>
     {children}
   </motion.div>
-)
+);
 
 const CarBookingForm = () => {
-  const [location, setLocation] = useState("")
-  const [category, setCategory] = useState("") // Added state for car category
-  const [bookingDate, setBookingDate] = useState(new Date())
-  const [returnDate, setReturnDate] = useState(new Date())
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [cars, setCars] = useState([]); // Store all cars from API
+  const [availableCategories, setAvailableCategories] = useState([]); // Store categories based on location
+  const [filteredCars, setFilteredCars] = useState([]); // Store cars based on category
+  const [location, setLocation] = useState("");
+  const [category, setCategory] = useState("");
+  const [carName, setCarName] = useState("");
+  const [bookingDate, setBookingDate] = useState(new Date());
+  const [returnDate, setReturnDate] = useState(new Date());
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleLocationChange = (event) => {
-    setLocation(event.target.value)
-  }
+  useEffect(() => {
+    fetchCars();
+  }, []);
 
-  const handleCategoryChange = (event) => {
-    setCategory(event.target.value)
-  }
+  // Fetch cars from MongoDB
+  const fetchCars = async () => {
+    try {
+      const response = await axios.get(AppRoutes.manageCar);
+      setCars(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // Filter categories based on location
+  useEffect(() => {
+    if (location) {
+      const categories = [...new Set(
+        cars
+          .filter((car) => car.city?.toLowerCase() === location.toLowerCase() && allowedCategories.includes(car.category))
+          .map((car) => car.category)
+      )];
+      setAvailableCategories(categories);
+      setCategory("");
+      setFilteredCars([]);
+      setCarName("");
+    }
+  }, [location, cars]);
+
+  // Filter cars based on selected category
+  useEffect(() => {
+    if (category) {
+      const filtered = cars.filter(
+        (car) => car.city?.toLowerCase() === location.toLowerCase() && car.category === category
+      );
+      setFilteredCars(filtered);
+      setCarName("");
+    }
+  }, [category, location, cars]);
 
   const handleFindCar = async (event) => {
-    event.preventDefault()
-    setIsSubmitting(true)
-    console.log("Searching cars for:", { location, category, bookingDate, returnDate })
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    setIsSubmitting(false)
-  }
+    event.preventDefault();
+    setIsSubmitting(true);
+    
+    if (!location || !category || !carName) {
+      toast.warn("Please select location, category, and car name.");
+      setIsSubmitting(false);
+      return;
+    }
+    
+    // Find car matching location, category, and name
+    const matchingCar = cars.find(
+      (car) =>
+        car.city?.toLowerCase() === location.toLowerCase() &&
+        car.category === category &&
+        car.name === carName
+    );
+      
+    if (!matchingCar) {
+      toast.warn("No cars found matching your criteria.");
+    } else if (matchingCar.status !== "available") {
+      toast.error("Car is not available.");
+    } else {
+      toast.success(`Car found: ${matchingCar.name}, Redirecting...`);
+      window.location.href = `/cars/${matchingCar._id}`;
+    }
+
+    setIsSubmitting(false);
+  };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="w-[80%] mx-auto bg-white p-10 rounded-lg shadow-2xl"
+      className="mx-auto bg-white p-10 rounded-lg shadow-2xl"
     >
       <motion.h2
         initial={{ opacity: 0, y: -20 }}
@@ -57,8 +117,9 @@ const CarBookingForm = () => {
       >
         Find Your Perfect Ride
       </motion.h2>
+
       <form onSubmit={handleFindCar} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Location Input */}
           <InputWrapper label="Location">
             <div className="relative">
@@ -66,58 +127,49 @@ const CarBookingForm = () => {
               <input
                 type="text"
                 value={location}
-                onChange={handleLocationChange}
+                onChange={(e) => setLocation(e.target.value)}
                 placeholder="Enter city or airport"
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#EC8208] focus:border-transparent transition duration-300"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#EC8208]"
               />
             </div>
           </InputWrapper>
 
           {/* Car Category Dropdown */}
           <InputWrapper label="Car Category">
-            <div className="relative">
-              <select
-                value={category}
-                onChange={handleCategoryChange}
-                className="w-full pl-3 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#EC8208] focus:border-transparent transition duration-300"
-              >
-                <option value="">Select a category</option>
-                <option value="SUV">SUV</option>
-                <option value="Sedan">Sedan</option>
-                <option value="Coupe">Coupe</option>
-                <option value="Convertible">Convertible</option>
-                <option value="Luxury">Luxury</option>
-              </select>
-            </div>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full pl-3 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#EC8208]"
+              disabled={!availableCategories.length}
+            >
+              <option value="">Select a category</option>
+              {availableCategories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
           </InputWrapper>
 
-          {/* Pick-up Date */}
-          <InputWrapper label="Pick-up Date">
-            <div className="relative">
-              <FaCalendarAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#EC8208]" />
-              <DatePicker
-                selected={bookingDate}
-                onChange={(date) => setBookingDate(date)}
-                dateFormat="MM/dd/yyyy"
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#EC8208] focus:border-transparent transition duration-300"
-              />
-            </div>
-          </InputWrapper>
-
-          {/* Return Date */}
-          <InputWrapper label="Return Date">
-            <div className="relative">
-              <FaCalendarAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#EC8208]" />
-              <DatePicker
-                selected={returnDate}
-                onChange={(date) => setReturnDate(date)}
-                dateFormat="MM/dd/yyyy"
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#EC8208] focus:border-transparent transition duration-300"
-              />
-            </div>
+          {/* Car Name Dropdown - Dynamic based on Category */}
+          <InputWrapper label="Car Name">
+            <select
+              value={carName}
+              onChange={(e) => setCarName(e.target.value)}
+              className="w-full pl-3 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#EC8208]"
+              disabled={!filteredCars.length}
+            >
+              <option value="">Select a Car</option>
+              {filteredCars.map((car) => (
+                <option key={car._id} value={car.name}>
+                  {car.name}
+                </option>
+              ))}
+            </select>
           </InputWrapper>
         </div>
 
+        {/* Submit Button */}
         <motion.div
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -154,7 +206,7 @@ const CarBookingForm = () => {
         </motion.div>
       </form>
     </motion.div>
-  )
-}
+  );
+};
 
-export default CarBookingForm
+export default CarBookingForm;

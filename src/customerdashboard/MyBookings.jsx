@@ -1,38 +1,54 @@
-"use client"
-import { motion } from "framer-motion"
-import { FaCalendarAlt, FaCar, FaCheckCircle, FaClock } from "react-icons/fa"
-
-const bookings = [
-  {
-    car: "BMW X5",
-    pickupDate: "04-01-2025",
-    returnDate: "04-05-2025",
-    bookingStatus: "Confirmed",
-    image: "/car-placeholder.png", // Replace with actual car images
-  },
-  {
-    car: "Tesla Model X",
-    pickupDate: "04-15-2025",
-    returnDate: "04-20-2025",
-    bookingStatus: "Pending",
-    image: "/car-placeholder.png",
-  },
-  {
-    car: "Mercedes E-Class",
-    pickupDate: "05-01-2025",
-    returnDate: "05-07-2025",
-    bookingStatus: "Confirmed",
-    image: "/car-placeholder.png",
-  },
-]
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { FaCalendarAlt, FaCar, FaCheckCircle, FaClock } from "react-icons/fa";
+import axios from "axios";
+import { AppRoutes } from "../constant/constant";
 
 const MyBookings = () => {
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const response = await axios.get(AppRoutes.getBookings);
+        const bookingsData = response.data;
+
+        // Fetch car details for each booking
+        const bookingsWithCars = await Promise.all(
+          bookingsData.map(async (booking) => {
+            try {
+              const carResponse = await axios.get(`${AppRoutes.manageCar}/${booking.car}`);
+              return { ...booking, carName: carResponse.data.name, carImage: carResponse.data.image };
+            } catch (error) {
+              console.error("Error fetching car details:", error);
+              return { ...booking, carName: "Unknown Car", carImage: "/car-placeholder.png" };
+            }
+          })
+        );
+
+        setBookings(bookingsWithCars);
+      } catch (error) {
+        console.error("Error fetching bookings:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBookings();
+  }, []);
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB"); // Formats as DD/MM/YYYY
+  };
+
+  if (loading) {
+    return <div className="text-center py-8">Loading...</div>;
+  }
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
       <motion.h1
         initial={{ y: -20 }}
         animate={{ y: 0 }}
@@ -51,57 +67,40 @@ const MyBookings = () => {
             className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
           >
             <div className="relative h-48">
-              <img
-                src={booking.image || "/car-placeholder.png"}
-                alt={booking.car}
-                className="w-full h-full object-cover"
-              />
+              <img src={booking.carImage || "/car-placeholder.png"} alt={booking.carName} className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                <h3 className="text-white text-2xl font-semibold">{booking.car}</h3>
+                <h3 className="text-white text-2xl font-semibold">{booking.carName}</h3>
               </div>
             </div>
             <div className="p-6">
               <div className="flex items-center mb-4">
                 <FaCar className="text-yellow-400 mr-2" />
-                <p className="text-gray-700 font-medium">Car: {booking.car}</p>
+                <p className="text-gray-700 font-medium">Car: {booking.carName}</p>
               </div>
               <div className="flex items-center mb-2">
                 <FaCalendarAlt className="text-yellow-400 mr-2" />
-                <p className="text-gray-700">Pickup: {booking.pickupDate}</p>
+                <p className="text-gray-700">Pickup: {formatDate(booking.pickUpDate)}</p>
               </div>
               <div className="flex items-center mb-4">
                 <FaCalendarAlt className="text-yellow-400 mr-2" />
-                <p className="text-gray-700">Return: {booking.returnDate}</p>
+                <p className="text-gray-700">Return: {formatDate(booking.dropOffDate)}</p>
               </div>
               <div className="flex items-center">
-                {booking.bookingStatus === "Confirmed" ? (
+                {booking.status === "completed" ? (
                   <FaCheckCircle className="text-green-500 mr-2" />
                 ) : (
                   <FaClock className="text-orange-500 mr-2" />
                 )}
-                <p
-                  className={`font-semibold ${
-                    booking.bookingStatus === "Confirmed" ? "text-green-500" : "text-orange-500"
-                  }`}
-                >
-                  {booking.bookingStatus}
+                <p className={`font-semibold ${booking.status === "completed" ? "text-green-500" : "text-orange-500"}`}>
+                  {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
                 </p>
               </div>
-            </div>
-            <div className="bg-gray-100 px-6 py-4">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-full bg-black text-white py-2 rounded-lg hover:bg-yellow-400 hover:text-black transition-colors duration-300"
-              >
-                View Details
-              </motion.button>
             </div>
           </motion.div>
         ))}
       </div>
     </motion.div>
-  )
-}
+  );
+};
 
-export default MyBookings
+export default MyBookings;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
@@ -15,59 +15,74 @@ import Footer from './components/Footer/Footer';
 import Home from './pages/Home';
 import CarPage from './pages/CarPage';
 import CarDetails from './pages/CarDetails';
-import DashboardLayout from './customerdashboard/DashboardLayout'; // New Dashboard layout
+import DashboardLayout from './customerdashboard/DashboardLayout'; 
 import MyBookings from './customerdashboard/MyBookings';
 import Profile from './customerdashboard/Profile';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import AdminDashboardLoyout from '../admindashboard/AdminDashboardLoyout';
-import AddCar from '../admindashboard/AddCars';
+import AdminDashboardLayout from './admindashboard/AdminDashboardLoyout';
+import AddCar from './admindashboard/AddCars';
+import ManageBooking from './admindashboard/ManageBooking';
 
+const Layout = ({ children }) => {
+  const location = useLocation(); // ✅ Get the current route
+
+  // Routes where we **HIDE** the Navbar and Footer
+  const hideNavFooterRoutes = [
+    '/login',
+    '/register',
+    '/dashboard/admin',
+    '/dashboard/admin/manage-car',
+    '/dashboard/admin/booking',
+    '/dashboard/admin/profile',
+    '/dashboard/user',
+    '/dashboard/user/myBookings',
+    '/dashboard/user/profile',
+  ];
+
+  const shouldHideNavFooter = hideNavFooterRoutes.includes(location.pathname);
+
+  return (
+    <div className="bg-white dark:bg-black dark:text-white text-black overflow-x-hidden">
+      {!shouldHideNavFooter && <Navbar />} {/* ✅ Show Navbar only if needed */}
+      {children}
+      {!shouldHideNavFooter && <Footer />} {/* ✅ Show Footer only if needed */}
+    </div>
+  );
+};
 
 const App = () => {
-  const [theme, setTheme] = useState(localStorage.getItem('theme') ? localStorage.getItem('theme') : 'light');
-  const element = document.documentElement;
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
 
   useEffect(() => {
-    if (theme === 'dark') {
-      element.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      element.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    localStorage.setItem('theme', theme);
   }, [theme]);
 
   useEffect(() => {
-    AOS.init({
-      offset: 100,
-      duration: 800,
-      easing: 'ease-in-sine',
-      delay: 100,
-    });
+    AOS.init({ offset: 100, duration: 800, easing: 'ease-in-sine', delay: 100 });
     AOS.refresh();
   }, []);
 
   return (
     <Router>
-      <div className="bg-white dark:bg-black dark:text-white text-black overflow-x-hidden">
-        {/* Conditional Navbar */}
-        {['/login', '/register', '/dashboard/user', '/dashboard/admin', '/dashboard/manage-car', '/dashboard/my-bookings', '/dashboard/profile'].indexOf(window.location.pathname) === -1 && <Navbar theme={theme} setTheme={setTheme} />}
-
+      <Layout>
         <Routes>
           <Route path="/" element={<Home theme={theme} />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Nested routes for Dashboard */}
-          <Route path="/dashboard/user" element={<DashboardLayout />}>
-            <Route path="my-bookings" element={<MyBookings />} />
+          {/* ✅ User Dashboard */}
+          <Route path="/dashboard/user/*" element={<DashboardLayout />}>
+            <Route path="myBookings" element={<MyBookings />} />
             <Route path="profile" element={<Profile />} />
           </Route>
 
-          <Route path='/dashboard/admin' element={<AdminDashboardLoyout />} >
-          <Route path="manage-car" element={<AddCar />} />
-          <Route path="profile" element={<Profile />} />
+          {/* ✅ Admin Dashboard */}
+          <Route path="/dashboard/admin/*" element={<AdminDashboardLayout />}>
+            <Route path="manage-car" element={<AddCar />} />
+            <Route path="booking" element={<ManageBooking />} />
+            <Route path="profile" element={<Profile />} />
           </Route>
 
           <Route path="/cars" element={<CarPage />} />
@@ -79,10 +94,7 @@ const App = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/cars" element={<CarList />} />
         </Routes>
-
-        {/* Conditional Footer */}
-        {['/login', '/register', '/dashboard/user', '/dashboard/admin', '/dashboard/manage-car','/dashboard/my-bookings', '/dashboard/profile'].indexOf(window.location.pathname) === -1 && <Footer />}
-      </div>
+      </Layout>
     </Router>
   );
 };

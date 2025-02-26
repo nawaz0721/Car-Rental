@@ -16,7 +16,7 @@ if(token){
 }
 
  const user = Cookies.get("user");
-  const userData = JSON.parse(user);
+ const userData = JSON.parse(user);
   console.log(userData.role);
 
 const handellogout= () => {

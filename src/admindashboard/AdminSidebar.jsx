@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaHome, FaUser, FaSignOutAlt, FaTicketAlt } from 'react-icons/fa';
 import Cookies from "js-cookie"
+import { BiSolidBookmark } from 'react-icons/bi';
 
 const AdminSidebar = () => {
   const handellogout= () => {
@@ -15,6 +16,11 @@ const AdminSidebar = () => {
         <li>
           <Link to="/dashboard/admin/manage-car" className="flex items-center py-2  hover:bg-[#EC8208]">
             <FaTicketAlt className="mr-3" /> Manage Cars
+          </Link>
+        </li>
+        <li>
+          <Link to="/dashboard/admin/booking" className="flex items-center py-2 hover:bg-[#EC8208]">
+            <BiSolidBookmark className="mr-3" /> Mange Booking
           </Link>
         </li>
         <li>
