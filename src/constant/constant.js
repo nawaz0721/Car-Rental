@@ -1,4 +1,4 @@
-const devUrl = 'http://localhost:4000/';
+const devUrl = 'https://car-rental-backend-opal.vercel.app/';
 export const BASE_URL = devUrl
 
 export const AppRoutes = {
