@@ -60,7 +60,7 @@ const ProfileDropdown = ({ isAuthenticated }) => {
           {isAuthenticated ? (
             <>
             {
-              userData.role === "admin" ? (
+              userData?.role === "admin" ? (
                 <li className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 <Link to="/dashboard/admin">Admin Dashboard</Link>
               </li>
