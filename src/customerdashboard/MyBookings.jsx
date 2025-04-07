@@ -78,7 +78,7 @@ const MyBookings = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+            className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-400"
           >
             <div className="relative h-48">
               <img src={booking.carImage || "/car-placeholder.png"} alt={booking.carName} className="w-full h-full object-cover" />
@@ -86,7 +86,7 @@ const MyBookings = () => {
                 <h3 className="text-white text-2xl font-semibold">{booking.carName}</h3>
               </div>
             </div>
-            <div className="p-6">
+            <div className="p-7">
               <div className="flex items-center mb-4">
                 <FaCar className="text-yellow-400 mr-2" />
                 <p className="text-gray-700 font-medium">Car: {booking.carName}</p>
